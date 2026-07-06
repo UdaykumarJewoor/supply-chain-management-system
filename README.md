@@ -62,25 +62,50 @@ A lightweight Express proxy server that handles API requests from the frontend c
 
 ## 🚀 How to Configure & Run
 
-### 1. Setup the Backend
-1. Open the backend configuration file: [backend/.env](file:///c:/Projects/SCMS/backend/.env).
-2. Configure your ERPNext server URL and API keys:
-   ```env
-   PORT=5000
-   ERPNEXT_URL=http://localhost:8000
-   ERPNEXT_API_KEY=your_erpnext_api_key
-   ERPNEXT_API_SECRET=your_erpnext_api_secret
+You can run the project either directly from the **root workspace directory** (using script shortcuts) or by navigating into the individual subdirectories.
+
+### 1. Configure the ERPNext Environment
+Before running the servers, open [backend/.env](file:///c:/Projects/SCMS/backend/.env) and enter your credentials:
+```env
+PORT=5000
+ERPNEXT_URL=http://localhost:8000
+ERPNEXT_API_KEY=your_erpnext_api_key
+ERPNEXT_API_SECRET=your_erpnext_api_secret
+```
+
+---
+
+### Option A: Running from the Root Workspace Directory (Recommended)
+
+You can run all commands directly from the root `C:\Projects\SCMS` folder:
+
+1. **Start the Frontend Client** (Vite on port 5173):
+   ```bash
+   npm run dev
    ```
-3. Run the development server:
+2. **Start the Backend Proxy** (Express on port 5000 in a separate terminal):
+   ```bash
+   npm run dev:backend
+   ```
+3. **Helper Commands**:
+   * Install all packages: `npm run install:all`
+   * Build all packages: `npm run build:all`
+
+---
+
+### Option B: Running from Individual Subfolders
+
+If you prefer to run inside the subdirectories:
+
+1. **Start the Backend Server**:
    ```bash
    cd backend
    npm run dev
    ```
-
-### 2. Setup the Frontend
-1. Launch the React dev server:
+2. **Start the Frontend Client**:
    ```bash
    cd frontend
    npm run dev
    ```
-2. Open your browser and navigate to `http://localhost:5173`.
+3. Open your browser and navigate to `http://localhost:5173`.
+
