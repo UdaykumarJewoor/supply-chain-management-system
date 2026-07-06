@@ -130,12 +130,12 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
   return (
     <div className="main-content">
       {/* Module Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="flex justify-between items-center" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.25rem' }}>Inventory Controls</h1>
+          <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.15rem' }}>Inventory Controls</h1>
           <p style={{ color: 'hsl(var(--text-muted))' }}>Item master records, multi-warehouse stock allocations, ledger logs, and warehouse transfers.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div className="flex items-center gap-3">
           <button className="btn btn-secondary" onClick={() => setIsStockEntryOpen(true)}>
             <RefreshCw size={16} /> Stock Entry
           </button>
@@ -146,25 +146,28 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
       </div>
 
       {/* Tabs Menu */}
-      <div style={{ display: 'flex', borderBottom: '1px solid hsl(var(--border))', gap: '1rem', paddingBottom: '0.5rem' }}>
+      <div className="tabs-bar" role="tablist">
         <button 
-          className={`btn ${activeTab === 'items' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}
+          className={`tab-item ${activeTab === 'items' ? 'active' : ''}`}
           onClick={() => setActiveTab('items')}
+          role="tab"
+          aria-selected={activeTab === 'items'}
         >
           <Package size={16} /> Items Master
         </button>
         <button 
-          className={`btn ${activeTab === 'warehouses' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}
+          className={`tab-item ${activeTab === 'warehouses' ? 'active' : ''}`}
           onClick={() => setActiveTab('warehouses')}
+          role="tab"
+          aria-selected={activeTab === 'warehouses'}
         >
           <WarehouseIcon size={16} /> Warehouses
         </button>
         <button 
-          className={`btn ${activeTab === 'ledger' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}
+          className={`tab-item ${activeTab === 'ledger' ? 'active' : ''}`}
           onClick={() => setActiveTab('ledger')}
+          role="tab"
+          aria-selected={activeTab === 'ledger'}
         >
           <History size={16} /> Stock Ledger
         </button>
@@ -174,9 +177,9 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
       {activeTab === 'items' && (
         <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* Filter Bar */}
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
-              <span style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--text-subtle))' }}>
+          <div className="flex items-center" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="flex-1" style={{ position: 'relative', minWidth: '240px' }}>
+              <span style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--text-subtle))', pointerEvents: 'none' }}>
                 <Search size={16} />
               </span>
               <input 
@@ -187,7 +190,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
                 style={{ paddingLeft: '2.5rem', width: '100%' }}
               />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="flex items-center gap-2">
               <span style={{ fontSize: '0.85rem', color: 'hsl(var(--text-muted))' }}>Group:</span>
               <select value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)} style={{ padding: '0.6rem 2rem 0.6rem 0.85rem' }}>
                 {itemGroups.map(grp => (
@@ -247,8 +250,12 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
                 })}
                 {filteredItems.length === 0 && (
                   <tr>
-                    <td colSpan={9} style={{ textAlign: 'center', padding: '2rem', color: 'hsl(var(--text-muted))' }}>
-                      No items matched your query. Click "Add Item" to register a new code.
+                    <td colSpan={9}>
+                      <div className="empty-state">
+                        <Package size={32} className="empty-state-icon" />
+                        <div className="empty-state-title">No items found</div>
+                        <div className="empty-state-desc">No items matched your query. Click "Add Item" to register a new code.</div>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -351,31 +358,32 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
         <div className="modal-overlay">
           <form className="modal-content" onSubmit={handleAddItem}>
             <div className="modal-header">
-              <h2 className="modal-title">New Item registration</h2>
-              <button type="button" className="modal-close" onClick={() => setIsAddItemOpen(false)}>×</button>
+              <h2 className="modal-title">New Item Registration</h2>
+              <button type="button" className="modal-close" onClick={() => setIsAddItemOpen(false)} aria-label="Close modal">×</button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="form-group">
-                <label>Item Code (ID) *</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="e.g. ITEM-0006"
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Item Name *</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="e.g. Copper Clad Board"
-                  value={newItem.item_name}
-                  onChange={(e) => setNewItem({ ...newItem, item_name: e.target.value })}
-                />
+            <div className="flex-col" style={{ display: 'flex', gap: '1rem' }}>
+              <div className="layout-split-50-50" style={{ gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label>Item Code (ID) *</label>
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder="e.g. ITEM-0006"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Item Name *</label>
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder="e.g. Copper Clad Board"
+                    value={newItem.item_name}
+                    onChange={(e) => setNewItem({ ...newItem, item_name: e.target.value })}
+                  />
+                </div>
               </div>
 
               <div className="layout-split-50-50" style={{ gap: '0.75rem' }}>
@@ -460,7 +468,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <div className="flex justify-between items-center" style={{ gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid hsl(var(--border))' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setIsAddItemOpen(false)}>Cancel</button>
               <button type="submit" className="btn btn-primary">Create Item</button>
             </div>
@@ -474,10 +482,10 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
           <form className="modal-content" style={{ maxWidth: '550px' }} onSubmit={handleStockEntrySubmit}>
             <div className="modal-header">
               <h2 className="modal-title">Create Stock Entry</h2>
-              <button type="button" className="modal-close" onClick={() => setIsStockEntryOpen(false)}>×</button>
+              <button type="button" className="modal-close" onClick={() => setIsStockEntryOpen(false)} aria-label="Close modal">×</button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex-col" style={{ display: 'flex', gap: '1rem' }}>
               <div className="layout-split-50-50" style={{ gap: '0.75rem' }}>
                 <div className="form-group">
                   <label>Purpose</label>
@@ -486,7 +494,6 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
                     onChange={(e) => setNewEntry({ 
                       ...newEntry, 
                       purpose: e.target.value as any,
-                      // Setup logical defaults
                       from_warehouse: e.target.value === 'Material Receipt' ? '' : 'Raw Materials - SCMS',
                       to_warehouse: e.target.value === 'Material Issue' ? '' : 'Finished Goods - SCMS'
                     })}
@@ -506,7 +513,6 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
                 </div>
               </div>
 
-              {/* Warehouse selector rows based on purpose */}
               <div className="layout-split-50-50" style={{ gap: '0.75rem' }}>
                 {newEntry.purpose !== 'Material Receipt' && (
                   <div className="form-group">
@@ -539,10 +545,10 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
               </div>
 
               <div style={{ borderTop: '1px solid hsl(var(--border))', paddingTop: '1rem' }}>
-                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem' }}>Item Rows</h4>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>Item Rows</h4>
                 
                 {newEntry.items.map((itemRow, index) => (
-                  <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-end' }}>
+                  <div key={index} className="flex items-end" style={{ gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div className="form-group" style={{ flex: 2 }}>
                       <label style={{ fontSize: '0.75rem' }}>Item Code</label>
                       <select 
@@ -597,7 +603,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <div className="flex justify-between items-center" style={{ gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid hsl(var(--border))' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setIsStockEntryOpen(false)}>Cancel</button>
               <button type="submit" className="btn btn-primary">Submit Stock Entry</button>
             </div>

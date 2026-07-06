@@ -135,20 +135,20 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
     <div className="main-content">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.25rem' }}>ERPNext Integration</h1>
+        <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.15rem' }}>ERPNext Integration</h1>
         <p style={{ color: 'hsl(var(--text-muted))' }}>Connect and synchronize stock items, suppliers, customers, and warehouses directly with Frappe REST APIs.</p>
       </div>
 
       <div className="layout-split-60-40">
         
         {/* Connection Setup Form */}
-        <div className="card" style={{ gap: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="card">
+          <div className="flex items-center gap-3">
             <Server color="hsl(var(--primary))" size={20} />
             <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-display)' }}>API Credentials</h3>
           </div>
 
-          <form onSubmit={handleTestConnection} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleTestConnection} className="flex-col" style={{ display: 'flex', gap: '1.25rem' }}>
             <div className="form-group">
               <label>ERPNext Base URL</label>
               <input 
@@ -165,52 +165,38 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
             <div className="layout-split-50-50" style={{ gap: '0.75rem' }}>
               <div className="form-group">
                 <label>API Key</label>
-                <div style={{ position: 'relative' }}>
-                  <input 
-                    type="text" 
-                    required
-                    disabled={config.connected}
-                    placeholder="Enter API Key"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    style={{ width: '100%' }}
-                  />
-                </div>
+                <input 
+                  type="text" 
+                  required
+                  disabled={config.connected}
+                  placeholder="Enter API Key"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  style={{ width: '100%' }}
+                />
               </div>
               <div className="form-group">
                 <label>API Secret</label>
-                <div style={{ position: 'relative' }}>
-                  <input 
-                    type="password" 
-                    required
-                    disabled={config.connected}
-                    placeholder="Enter API Secret"
-                    value={apiSecret}
-                    onChange={(e) => setApiSecret(e.target.value)}
-                    style={{ width: '100%' }}
-                  />
-                </div>
+                <input 
+                  type="password" 
+                  required
+                  disabled={config.connected}
+                  placeholder="Enter API Secret"
+                  value={apiSecret}
+                  onChange={(e) => setApiSecret(e.target.value)}
+                  style={{ width: '100%' }}
+                />
               </div>
             </div>
 
             {testResult && (
-              <div style={{ 
-                padding: '0.75rem 1rem', 
-                borderRadius: 'var(--radius-md)', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem',
-                fontSize: '0.85rem',
-                backgroundColor: testResult.success ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                border: testResult.success ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)',
-                color: testResult.success ? 'hsl(var(--success))' : 'hsl(var(--danger))'
-              }}>
+              <div className={`alert-banner ${testResult.success ? 'alert-banner-success' : 'alert-banner-danger'}`} style={{ padding: '0.75rem 1rem' }}>
                 {testResult.success ? <CheckCircle size={18} /> : <XCircle size={18} />}
                 <span>{testResult.message}</span>
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
               {!config.connected ? (
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={testing}>
                   {testing ? <RefreshCw className="spin" size={16} /> : 'Test & Connect'}
@@ -222,35 +208,18 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
               )}
             </div>
           </form>
-
-          <style>{`
-            .spin {
-              animation: spin 1.2s linear infinite;
-            }
-            @keyframes spin {
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
         </div>
 
         {/* Sync Controls Panel */}
-        <div className="card" style={{ gap: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="card">
+          <div className="flex items-center gap-3">
             <Download color="hsl(var(--info))" size={20} />
             <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-display)' }}>Data Synchronizer</h3>
           </div>
 
           {!config.connected && (
-            <div style={{ 
-              padding: '1rem', 
-              backgroundColor: 'hsl(var(--bg-sidebar))', 
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid hsl(var(--border))',
-              display: 'flex',
-              gap: '0.75rem',
-              alignItems: 'flex-start'
-            }}>
-              <AlertCircle color="hsl(var(--warning))" size={20} style={{ flexShrink: 0 }} />
+            <div className="flex items-start" style={{ gap: '0.75rem', padding: '1rem', backgroundColor: 'hsl(var(--bg-sidebar))', borderRadius: 'var(--radius-md)', border: '1px solid hsl(var(--border))' }}>
+              <AlertCircle color="hsl(var(--warning))" size={20} className="shrink-0" />
               <div style={{ fontSize: '0.825rem', color: 'hsl(var(--text-muted))' }}>
                 <span style={{ fontWeight: 600, color: 'hsl(var(--text-main))' }}>Offline Mode Active</span>
                 <br />You are running on high-fidelity simulation mock data. Connect an ERPNext server to sync live ERP assets.
@@ -258,16 +227,15 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="flex-col" style={{ display: 'flex', gap: '0.5rem' }}>
             {/* Sync Items */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0', borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="flex justify-between items-center" style={{ padding: '0.65rem 0', borderBottom: '1px solid hsl(var(--border))' }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Items Master</div>
                 <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-subtle))' }}>Download catalog parameters</div>
               </div>
               <button 
-                className="btn btn-secondary" 
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                className="btn btn-secondary btn-sm"
                 disabled={!config.connected || syncing.items}
                 onClick={() => handleSync('items')}
               >
@@ -276,14 +244,13 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
             </div>
 
             {/* Sync Warehouses */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0', borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="flex justify-between items-center" style={{ padding: '0.65rem 0', borderBottom: '1px solid hsl(var(--border))' }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Warehouses</div>
                 <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-subtle))' }}>Pull warehouse records</div>
               </div>
               <button 
-                className="btn btn-secondary" 
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                className="btn btn-secondary btn-sm"
                 disabled={!config.connected || syncing.warehouses}
                 onClick={() => handleSync('warehouses')}
               >
@@ -292,14 +259,13 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
             </div>
 
             {/* Sync Suppliers */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0', borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="flex justify-between items-center" style={{ padding: '0.65rem 0', borderBottom: '1px solid hsl(var(--border))' }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Suppliers</div>
                 <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-subtle))' }}>Pull vendors list</div>
               </div>
               <button 
-                className="btn btn-secondary" 
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                className="btn btn-secondary btn-sm"
                 disabled={!config.connected || syncing.suppliers}
                 onClick={() => handleSync('suppliers')}
               >
@@ -308,14 +274,13 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
             </div>
 
             {/* Sync Customers */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0' }}>
+            <div className="flex justify-between items-center" style={{ padding: '0.65rem 0' }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Customers</div>
                 <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-subtle))' }}>Pull buyers records</div>
               </div>
               <button 
-                className="btn btn-secondary" 
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                className="btn btn-secondary btn-sm"
                 disabled={!config.connected || syncing.customers}
                 onClick={() => handleSync('customers')}
               >
@@ -327,24 +292,12 @@ export const IntegrationConsole: React.FC<IntegrationConsoleProps> = ({
       </div>
 
       {/* Connection Log Terminal Output */}
-      <div className="card" style={{ gap: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div className="card" style={{ gap: '1rem' }}>
+        <div className="flex items-center gap-2">
           <Terminal color="hsl(var(--primary))" size={18} />
           <h3 style={{ fontSize: '1rem', fontFamily: 'var(--font-display)' }}>Integration Debug Console</h3>
         </div>
-        <div style={{ 
-          backgroundColor: 'black', 
-          fontFamily: 'monospace', 
-          fontSize: '0.8rem', 
-          color: '#39ff14', 
-          padding: '1rem', 
-          borderRadius: 'var(--radius-md)', 
-          maxHeight: '160px', 
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.25rem'
-        }}>
+        <div className="terminal-console">
           {logs.map((log, idx) => (
             <div key={idx}>{log}</div>
           ))}

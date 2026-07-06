@@ -17,7 +17,6 @@ import { BuyingModule } from './components/BuyingModule';
 import { SellingModule } from './components/SellingModule';
 import { IntegrationConsole } from './components/IntegrationConsole';
 
-// Icons for navigation
 import { 
   LayoutDashboard, 
   Package, 
@@ -267,57 +266,77 @@ function App() {
   return (
     <div className="app-container">
       {/* SIDEBAR NAVIGATION */}
-      <aside className="sidebar">
+      <aside className="sidebar" role="navigation" aria-label="Main navigation">
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <Workflow size={18} color="hsl(var(--primary))" />
+            <Workflow size={20} color="hsl(var(--primary))" />
             <span>SCM Suite</span>
           </div>
         </div>
 
-        <ul className="sidebar-menu">
-          <li>
+        <ul className="sidebar-menu" role="menubar">
+          <li role="none">
             <div 
               className={`menu-item ${activeModule === 'dashboard' ? 'active' : ''}`}
               onClick={() => setActiveModule('dashboard')}
+              role="menuitem"
+              aria-current={activeModule === 'dashboard' ? 'page' : undefined}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveModule('dashboard')}
             >
-              <LayoutDashboard size={16} />
+              <LayoutDashboard size={18} />
               <span>Dashboard</span>
             </div>
           </li>
-          <li>
+          <li role="none">
             <div 
               className={`menu-item ${activeModule === 'inventory' ? 'active' : ''}`}
               onClick={() => setActiveModule('inventory')}
+              role="menuitem"
+              aria-current={activeModule === 'inventory' ? 'page' : undefined}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveModule('inventory')}
             >
-              <Package size={16} />
+              <Package size={18} />
               <span>Stock Control</span>
             </div>
           </li>
-          <li>
+          <li role="none">
             <div 
               className={`menu-item ${activeModule === 'buying' ? 'active' : ''}`}
               onClick={() => setActiveModule('buying')}
+              role="menuitem"
+              aria-current={activeModule === 'buying' ? 'page' : undefined}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveModule('buying')}
             >
-              <ShoppingCart size={16} />
+              <ShoppingCart size={18} />
               <span>Procurement</span>
             </div>
           </li>
-          <li>
+          <li role="none">
             <div 
               className={`menu-item ${activeModule === 'selling' ? 'active' : ''}`}
               onClick={() => setActiveModule('selling')}
+              role="menuitem"
+              aria-current={activeModule === 'selling' ? 'page' : undefined}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveModule('selling')}
             >
-              <Truck size={16} />
+              <Truck size={18} />
               <span>Sales Fulfillment</span>
             </div>
           </li>
-          <li>
+          <li role="none">
             <div 
               className={`menu-item ${activeModule === 'integration' ? 'active' : ''}`}
               onClick={() => setActiveModule('integration')}
+              role="menuitem"
+              aria-current={activeModule === 'integration' ? 'page' : undefined}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveModule('integration')}
             >
-              <Server size={16} />
+              <Server size={18} />
               <span>ERPNext Sync</span>
             </div>
           </li>
@@ -326,8 +345,8 @@ function App() {
         {/* SIDEBAR FOOTER (Theme & Status) */}
         <div className="sidebar-footer">
           {/* Connection Status Indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <div className={`pulse-indicator ${config.connected ? '' : 'danger'}`} />
+          <div className="flex items-center gap-2">
+            <div className={`pulse-indicator ${config.connected ? '' : 'danger'}`} role="status" aria-label={config.connected ? 'Connected' : 'Disconnected'} />
             <span style={{ fontSize: '0.75rem', color: 'hsl(var(--text-muted))', fontWeight: 600 }}>
               {config.connected ? 'ERPNext Linked' : 'Offline / Mock Engine'}
             </span>
@@ -339,14 +358,15 @@ function App() {
             className="btn btn-secondary" 
             style={{ width: '100%', justifyContent: 'flex-start', padding: '0.45rem 0.65rem', fontSize: '0.775rem' }}
             onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
           >
             {theme === 'dark' ? (
               <>
-                <Sun size={13} /> <span>Light UI Shell</span>
+                <Sun size={14} /> <span>Light UI Shell</span>
               </>
             ) : (
               <>
-                <Moon size={13} /> <span>Dark UI Shell</span>
+                <Moon size={14} /> <span>Dark UI Shell</span>
               </>
             )}
           </button>

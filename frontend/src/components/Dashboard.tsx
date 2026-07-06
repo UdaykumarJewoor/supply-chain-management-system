@@ -41,34 +41,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="main-content">
       {/* Header section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid hsl(var(--border))', paddingBottom: '1.25rem', marginBottom: '0.5rem' }}>
+      <div className="flex justify-between items-center" style={{ borderBottom: '1px solid hsl(var(--border))', paddingBottom: '1.25rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>SCM Command Center</h1>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.15rem' }}>SCM Command Center</h1>
           <p style={{ color: 'hsl(var(--text-muted))', fontSize: '0.9rem' }}>Real-time valuation metrics, procurement logs, and shipping tracking.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', backgroundColor: 'hsl(var(--bg-card))', border: '1px solid hsl(var(--border))', padding: '0.4rem 0.8rem', borderRadius: '6px' }}>
+        <div className="flex items-center gap-2 shrink-0" style={{ backgroundColor: 'hsl(var(--bg-card))', border: '1px solid hsl(var(--border))', padding: '0.4rem 0.85rem', borderRadius: 'var(--radius-md)' }}>
           <div className="pulse-indicator"></div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'hsl(var(--success))' }}>SYNCED WITH ERPNEXT</span>
+          <span style={{ fontSize: '0.775rem', fontWeight: 600, color: 'hsl(var(--success))' }}>SYNCED WITH ERPNEXT</span>
         </div>
       </div>
 
       {/* Critical Alert Bar */}
       {lowStockItems.length > 0 && (
-        <div 
-          style={{ 
-            backgroundColor: 'hsl(var(--warning-bg))',
-            border: '1px solid hsl(var(--warning-border))',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.85rem 1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            animation: 'fadeIn 0.2s ease-out'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <AlertTriangle color="hsl(var(--warning))" size={18} />
+        <div className="alert-banner alert-banner-warning">
+          <div className="flex items-center gap-3">
+            <AlertTriangle color="hsl(var(--warning))" size={18} className="shrink-0" />
             <div style={{ fontSize: '0.875rem' }}>
               <span style={{ fontWeight: 600, color: 'hsl(var(--text-main))' }}>Safety Stock Breach:</span>{' '}
               <span style={{ color: 'hsl(var(--text-muted))' }}>
@@ -76,7 +64,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </span>
             </div>
           </div>
-          <button className="btn btn-secondary" style={{ padding: '0.3rem 0.65rem', fontSize: '0.775rem' }} onClick={() => onNavigate('inventory')}>
+          <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('inventory')}>
             View Items
           </button>
         </div>
@@ -85,10 +73,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* KPI Cards Grid */}
       <div className="dashboard-grid">
         {/* KPI 1 */}
-        <div className="card" onClick={() => onNavigate('inventory')} style={{ cursor: 'pointer' }}>
+        <div className="card card-clickable" onClick={() => onNavigate('inventory')}>
           <div className="card-header-flex">
             <span className="card-title">Stock Valuation</span>
-            <TrendingUp color="hsl(var(--primary))" size={16} />
+            <TrendingUp color="hsl(var(--primary))" size={18} />
           </div>
           <div>
             <div className="card-value">${totalStockValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
@@ -97,10 +85,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* KPI 2 */}
-        <div className="card" onClick={() => onNavigate('inventory')} style={{ cursor: 'pointer' }}>
+        <div className="card card-clickable" onClick={() => onNavigate('inventory')}>
           <div className="card-header-flex">
             <span className="card-title">Low Stock Alerts</span>
-            <AlertTriangle color={lowStockItems.length > 0 ? 'hsl(var(--warning))' : 'hsl(var(--text-subtle))'} size={16} />
+            <AlertTriangle color={lowStockItems.length > 0 ? 'hsl(var(--warning))' : 'hsl(var(--text-subtle))'} size={18} />
           </div>
           <div>
             <div className="card-value" style={{ color: lowStockItems.length > 0 ? 'hsl(var(--warning))' : 'inherit' }}>
@@ -111,10 +99,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* KPI 3 */}
-        <div className="card" onClick={() => onNavigate('buying')} style={{ cursor: 'pointer' }}>
+        <div className="card card-clickable" onClick={() => onNavigate('buying')}>
           <div className="card-header-flex">
             <span className="card-title">Procurement Orders</span>
-            <ShoppingCart color="hsl(var(--success))" size={16} />
+            <ShoppingCart color="hsl(var(--success))" size={18} />
           </div>
           <div>
             <div className="card-value">{pendingPOs.length}</div>
@@ -123,10 +111,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* KPI 4 */}
-        <div className="card" onClick={() => onNavigate('selling')} style={{ cursor: 'pointer' }}>
+        <div className="card card-clickable" onClick={() => onNavigate('selling')}>
           <div className="card-header-flex">
             <span className="card-title">Fulfillment Orders</span>
-            <Truck color="hsl(var(--info))" size={16} />
+            <Truck color="hsl(var(--info))" size={18} />
           </div>
           <div>
             <div className="card-value">{pendingDeliveries.length}</div>
@@ -243,37 +231,38 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Supplier Scoreboard */}
-        <div className="card" style={{ gap: '1rem' }}>
+        <div className="card">
           <div>
             <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.15rem' }}>Supplier Logistics Scorecard</h3>
             <p style={{ color: 'hsl(var(--text-muted))', fontSize: '0.8rem' }}>Vendor metrics evaluating delivery schedules and pass ratios.</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, justifyContent: 'center' }}>
+          <div className="flex-col" style={{ display: 'flex', gap: '0.5rem', flex: 1, justifyContent: 'center' }}>
             {topSuppliers.map((supplier, idx) => (
               <div 
                 key={idx}
+                className="flex justify-between items-center"
                 style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  padding: '0.65rem 0.85rem',
+                  padding: '0.7rem 0.85rem',
                   backgroundColor: 'hsl(var(--bg-sidebar))',
                   borderRadius: 'var(--radius-md)',
-                  border: '1px solid hsl(var(--border))'
+                  border: '1px solid hsl(var(--border))',
+                  transition: 'border-color var(--transition-normal)'
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'hsl(var(--border))'; }}
               >
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{supplier.name}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.1rem' }}>{supplier.name}</div>
                   <div style={{ fontSize: '0.7rem', color: 'hsl(var(--text-subtle))' }}>Verified Partner</div>
                 </div>
-                <div style={{ display: 'flex', gap: '1.25rem', textAlign: 'right' }}>
+                <div className="flex items-center" style={{ gap: '1.5rem', textAlign: 'right' }}>
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'hsl(var(--primary))' }}>{supplier.onTimeRate}</div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'hsl(var(--primary))' }}>{supplier.onTimeRate}</div>
                     <div style={{ fontSize: '0.65rem', color: 'hsl(var(--text-subtle))' }}>On-Time</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'hsl(var(--success))' }}>{supplier.qualityScore}</div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'hsl(var(--success))' }}>{supplier.qualityScore}</div>
                     <div style={{ fontSize: '0.65rem', color: 'hsl(var(--text-subtle))' }}>QA Pass</div>
                   </div>
                 </div>
@@ -287,13 +276,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="layout-split-50-50">
         
         {/* Incoming Shipments */}
-        <div className="card" style={{ gap: '1rem' }}>
+        <div className="card">
           <div className="card-header-flex">
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Incoming Materials (PO)</h3>
               <p style={{ color: 'hsl(var(--text-muted))', fontSize: '0.8rem' }}>Materials status from procurement orders.</p>
             </div>
-            <button className="btn btn-secondary" style={{ padding: '0.35rem 0.7rem', fontSize: '0.775rem' }} onClick={() => onNavigate('buying')}>
+            <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('buying')}>
               View POs
             </button>
           </div>
@@ -313,7 +302,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <tr key={po.name}>
                     <td style={{ fontWeight: 600, color: 'hsl(var(--primary))' }}>{po.name}</td>
                     <td>{po.supplier}</td>
-                    <td>{po.total_qty} units</td>
+                    <td>{po.total_qty.toLocaleString()} units</td>
                     <td>
                       <span className={`badge ${
                         po.status === 'Received' ? 'badge-success' : po.status === 'Submitted' ? 'badge-info' : 'badge-warning'
@@ -323,19 +312,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </td>
                   </tr>
                 ))}
+                {purchaseOrders.length === 0 && (
+                  <tr><td colSpan={4} className="empty-state" style={{ padding: '1.5rem' }}>No purchase orders yet</td></tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
         {/* Outgoing Shipments */}
-        <div className="card" style={{ gap: '1rem' }}>
+        <div className="card">
           <div className="card-header-flex">
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Outgoing Shipments (SO)</h3>
               <p style={{ color: 'hsl(var(--text-muted))', fontSize: '0.8rem' }}>Dispatch status for sales fulfillment.</p>
             </div>
-            <button className="btn btn-secondary" style={{ padding: '0.35rem 0.7rem', fontSize: '0.775rem' }} onClick={() => onNavigate('selling')}>
+            <button className="btn btn-secondary btn-sm" onClick={() => onNavigate('selling')}>
               View Sales
             </button>
           </div>
@@ -355,7 +347,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <tr key={so.name}>
                     <td style={{ fontWeight: 600, color: 'hsl(var(--primary))' }}>{so.name}</td>
                     <td>{so.customer}</td>
-                    <td>${so.grand_total.toLocaleString()}</td>
+                    <td style={{ fontWeight: 600 }}>${so.grand_total.toLocaleString()}</td>
                     <td>
                       <span className={`badge ${
                         so.status === 'Shipped' ? 'badge-success' : so.status === 'Submitted' ? 'badge-info' : 'badge-warning'
@@ -365,6 +357,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </td>
                   </tr>
                 ))}
+                {salesOrders.length === 0 && (
+                  <tr><td colSpan={4} className="empty-state" style={{ padding: '1.5rem' }}>No sales orders yet</td></tr>
+                )}
               </tbody>
             </table>
           </div>
