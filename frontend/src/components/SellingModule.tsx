@@ -116,12 +116,12 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
   return (
     <div className="main-content">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="flex justify-between items-center" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.25rem' }}>Sales & Order Fulfillment</h1>
+          <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.15rem' }}>Sales & Order Fulfillment</h1>
           <p style={{ color: 'hsl(var(--text-muted))' }}>Control customer orders, verify available stock allocations, and process outward delivery shipments.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div className="flex items-center gap-3">
           <button className="btn btn-primary" onClick={() => setIsCreateSoOpen(true)}>
             <Plus size={16} /> Create SO
           </button>
@@ -129,18 +129,20 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid hsl(var(--border))', gap: '1rem', paddingBottom: '0.5rem' }}>
+      <div className="tabs-bar" role="tablist">
         <button 
-          className={`btn ${activeTab === 'orders' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}
+          className={`tab-item ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
+          role="tab"
+          aria-selected={activeTab === 'orders'}
         >
           <FileText size={16} /> Sales Orders
         </button>
         <button 
-          className={`btn ${activeTab === 'customers' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}
+          className={`tab-item ${activeTab === 'customers' ? 'active' : ''}`}
           onClick={() => setActiveTab('customers')}
+          role="tab"
+          aria-selected={activeTab === 'customers'}
         >
           <Users size={16} /> Customer Directory
         </button>
@@ -188,6 +190,17 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
                     </td>
                   </tr>
                 ))}
+                {salesOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={8}>
+                      <div className="empty-state">
+                        <FileText size={32} className="empty-state-icon" />
+                        <div className="empty-state-title">No sales orders</div>
+                        <div className="empty-state-desc">Create a sales order to start tracking fulfillment.</div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -220,9 +233,20 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
                     </td>
                     <td>{customer.email || '—'}</td>
                     <td>{customer.phone || '—'}</td>
-                    <td style={{ fontSize: '0.85rem', color: 'hsl(var(--text-muted))' }}>{customer.address || '—'}</td>
+                    <td style={{ fontSize: '0.85rem', color: 'hsl(var(--text-muted))', maxWidth: '200px' }} className="truncate">{customer.address || '—'}</td>
                   </tr>
                 ))}
+                {customers.length === 0 && (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="empty-state">
+                        <Users size={32} className="empty-state-icon" />
+                        <div className="empty-state-title">No customers registered</div>
+                        <div className="empty-state-desc">Customers will appear here once added.</div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -235,7 +259,7 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
           <div className="modal-content" style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h2 className="modal-title">{selectedSo.name} — Sales Sheet</h2>
-              <button className="modal-close" onClick={() => setSelectedSo(null)}>×</button>
+              <button className="modal-close" onClick={() => setSelectedSo(null)} aria-label="Close modal">×</button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -323,7 +347,8 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
               )}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <div className="flex justify-between items-center" style={{ gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid hsl(var(--border))' }}>
+              <button className="btn btn-secondary" onClick={() => setSelectedSo(null)}>Close</button>
               {selectedSo.status === 'Draft' && (
                 <button 
                   className="btn btn-primary"
@@ -335,7 +360,6 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
                   Submit Sales Order
                 </button>
               )}
-              <button className="btn btn-secondary" onClick={() => setSelectedSo(null)}>Close</button>
             </div>
           </div>
         </div>
@@ -347,7 +371,7 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
           <form className="modal-content" style={{ maxWidth: '650px' }} onSubmit={handleSubmitSO}>
             <div className="modal-header">
               <h2 className="modal-title">New Sales Order</h2>
-              <button type="button" className="modal-close" onClick={() => setIsCreateSoOpen(false)}>×</button>
+              <button type="button" className="modal-close" onClick={() => setIsCreateSoOpen(false)} aria-label="Close modal">×</button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -465,7 +489,7 @@ export const SellingModule: React.FC<SellingModuleProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <div className="flex justify-between items-center" style={{ gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid hsl(var(--border))' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setIsCreateSoOpen(false)}>Cancel</button>
               <button type="submit" className="btn btn-primary" disabled={newSo.items.length === 0}>Create Draft SO</button>
             </div>
