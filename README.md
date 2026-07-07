@@ -22,7 +22,7 @@ This application is built as a split **Frontend/Backend** system designed to run
                   │                 PROXY SERVER                 │
                   │   ┌──────────────────────────────────────┐   │
                   │   │        Express Backend API           │   │
-                  │   │        (Port 5000 - Node)            │   │
+                  │   │        (Port 5000 - Node/TSX)        │   │
                   │   └──────────────────┬───────────────────┘   │
                   └──────────────────────┼───────────────────────┘
                                          │ Secure Proxy Request + API Token
@@ -32,31 +32,34 @@ This application is built as a split **Frontend/Backend** system designed to run
 │   ┌──────────────────────────────────┐ ┌───────────────────────────┐   │
 │   │       ERPNext App Server         │ │      MariaDB Database     │   │
 │   │   (frappe_docker-backend-1)      │ │  (Relational Storage DB)  │   │
-│   │         (Port 8000)              │ │                           │   │
+│   │         (Port 8081)              │ │                           │   │
 │   └─────────────────┬────────────────┘ └─────────────▲─────────────┘   │
 │                     └────────────────────────────────┘                 │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1. The React Frontend Clone (`frontend/`)
-A responsive, glassmorphic Single Page Application (SPA) designed to display stock valuation charts, active warehouse metrics, purchasing modules, and shipping workflows.
+A responsive, high-end SaaS Single Page Application (SPA) designed to display stock valuation metrics, active warehouse structures, procurement modules, and shipping workflows.
+* **Persistent Offline Cache**: When disconnected from ERPNext, the application operates on an in-memory simulation engine. Any changes (items created, stock entries, purchase orders, new suppliers) are preserved in browser **`localStorage`** and persist across refreshes.
 
 ### 2. The Express Backend Proxy (`backend/`)
-A lightweight Express proxy server that handles API requests from the frontend client. 
-* **Database & MariaDB**: This node project **does not run its own MariaDB instance**. Instead, it acts as a gateway that routes request headers to your **actual running ERPNext instance in Docker**, which reads/writes data directly into its **MariaDB** database.
-* **CORS Resolution**: Solves CORS blocks dynamically. The browser sends local requests to `http://localhost:5000`, and the Node.js backend handles direct server-to-server HTTP API calls to the ERPNext server on port `8000`.
-* **API Token Protection**: Your API Key and API Secret are read securely from the backend's `.env` configuration rather than being exposed in the browser's local storage.
-* **Offline Mock Engine**: When the ERPNext server is offline or disconnected, the application seamlessly runs on a premium in-memory simulation engine populated with rich mock datasets.
+A lightweight Express proxy server running on `tsx` (TypeScript Execute) that routes request headers to your active ERPNext instance in Docker.
+* **Database & MariaDB**: This node project **does not run its own database**. Instead, it acts as a secure proxy that writes/reads directly to your running **ERPNext MariaDB** instance.
+* **CORS Resolution**: Solves browser CORS restrictions by proxying API calls to `http://localhost:5000` through to your ERPNext host.
+* **API Token Protection**: Securely attaches `Authorization` keys read from the backend's `.env` configuration.
 
 ---
 
 ## ⚡ Main Features
 
 * **Operations Dashboard**: Features real-time stock valuation metrics, safety levels check alerts, and an interactive **SVG Logistics Pipeline Diagram** displaying stock flow paths (Suppliers ➔ Inspection ➔ Warehouse ➔ Transit ➔ Customer).
-* **Inventory Master (Stock)**: Registered catalog list displaying item groups, SKU, standard UoM, reorder limits, and individual warehouse capacities (meters). Includes Stock Entry creation for material receipts and internal warehouse transfers.
-* **Procurement (Buying)**: Tracks Purchase Orders (Draft ➔ Submitted ➔ Received). Creating a Goods Receipt Note (GRN) automatically updates corresponding stock ledgers and warehouse capacities.
+* **Inventory Master (Stock)**: Registered catalog list displaying item groups, SKU, standard UoM, reorder limits, and individual warehouse capacities. Includes Stock Entry creation for material receipts and internal warehouse transfers.
+* **Procurement (Buying)**: Tracks Purchase Orders (Draft ➔ Submitted ➔ Received). 
+  * **Supplier Creation**: Create and register new suppliers directly in the SCM Suite console and save them into ERPNext's MariaDB.
+  * **Synced PO Creation**: Posting a Purchase Order validates the links, checks target warehouse constraints, and writes the PO to your live ERPNext database.
+  * **Goods Receipt**: Creating a Goods Receipt Note (GRN) automatically updates corresponding stock ledgers and warehouse capacities.
 * **Fulfillment (Selling)**: Process Sales Orders and outgoing Delivery Notes (DN) to dispatch shipments (automatically deducting stock after checking warehouse availability).
-* **Custom Backend APIs**: Modular layout separating ERPNext routing and custom controllers (`backend/src/routes/customRoutes.ts`), ready to expand with custom analytics, annotations, or local databases.
+* **Dynamic DocType Customizations**: Includes a backend **Schema Registry** ([backend/src/config/schemas.ts](file:///c:/Projects/SCMS/backend/src/config/schemas.ts)) that manages the queried fields for each ERPNext DocType. Customize and query custom fields at runtime without restructuring the backend codebase.
 
 ---
 
@@ -68,7 +71,7 @@ You can run the project either directly from the **root workspace directory** (u
 Before running the servers, open [backend/.env](file:///c:/Projects/SCMS/backend/.env) and enter your credentials:
 ```env
 PORT=5000
-ERPNEXT_URL=http://localhost:8000
+ERPNEXT_URL=http://localhost:8081
 ERPNEXT_API_KEY=your_erpnext_api_key
 ERPNEXT_API_SECRET=your_erpnext_api_secret
 ```
@@ -108,4 +111,3 @@ If you prefer to run inside the subdirectories:
    npm run dev
    ```
 3. Open your browser and navigate to `http://localhost:5173`.
-

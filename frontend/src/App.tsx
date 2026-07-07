@@ -10,7 +10,7 @@ import {
   initialSalesOrders, 
   initialStockLedger 
 } from './services/mockData';
-import { getStoredConfig } from './services/erpnextApi';
+import { getStoredConfig, createERPNextPurchaseOrder, fetchERPNextPurchaseOrders, createERPNextSupplier } from './services/erpnextApi';
 import { Dashboard } from './components/Dashboard';
 import { InventoryModule } from './components/InventoryModule';
 import { BuyingModule } from './components/BuyingModule';
@@ -37,14 +37,81 @@ function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   // Master State
-  const [items, setItems] = useState<Item[]>(initialItems);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>(initialWarehouses);
-  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
-  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>(initialSalesOrders);
-  const [stockLedger, setStockLedger] = useState<StockLedgerEntry[]>(initialStockLedger);
+  const [items, setItems] = useState<Item[]>(() => {
+    const local = localStorage.getItem('scms_items');
+    return local ? JSON.parse(local) : initialItems;
+  });
+  const [warehouses, setWarehouses] = useState<Warehouse[]>(() => {
+    const local = localStorage.getItem('scms_warehouses');
+    return local ? JSON.parse(local) : initialWarehouses;
+  });
+  const [suppliers, setSuppliers] = useState<Supplier[]>(() => {
+    const local = localStorage.getItem('scms_suppliers');
+    return local ? JSON.parse(local) : initialSuppliers;
+  });
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    const local = localStorage.getItem('scms_customers');
+    return local ? JSON.parse(local) : initialCustomers;
+  });
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(() => {
+    const local = localStorage.getItem('scms_purchase_orders');
+    return local ? JSON.parse(local) : initialPurchaseOrders;
+  });
+  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>(() => {
+    const local = localStorage.getItem('scms_sales_orders');
+    return local ? JSON.parse(local) : initialSalesOrders;
+  });
+  const [stockLedger, setStockLedger] = useState<StockLedgerEntry[]>(() => {
+    const local = localStorage.getItem('scms_stock_ledger');
+    return local ? JSON.parse(local) : initialStockLedger;
+  });
   const [config, setConfig] = useState<ERPNextConfig>(getStoredConfig());
+
+  // Persist mock state changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('scms_items', JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem('scms_warehouses', JSON.stringify(warehouses));
+  }, [warehouses]);
+
+  useEffect(() => {
+    localStorage.setItem('scms_suppliers', JSON.stringify(suppliers));
+  }, [suppliers]);
+
+  useEffect(() => {
+    localStorage.setItem('scms_customers', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('scms_purchase_orders', JSON.stringify(purchaseOrders));
+  }, [purchaseOrders]);
+
+  useEffect(() => {
+    localStorage.setItem('scms_sales_orders', JSON.stringify(salesOrders));
+  }, [salesOrders]);
+
+  useEffect(() => {
+    localStorage.setItem('scms_stock_ledger', JSON.stringify(stockLedger));
+  }, [stockLedger]);
+
+  // Load Purchase Orders from ERPNext when connected
+  useEffect(() => {
+    if (config.connected) {
+      const syncPOs = async () => {
+        try {
+          const orders = await fetchERPNextPurchaseOrders(config);
+          if (orders && orders.length > 0) {
+            setPurchaseOrders(orders);
+          }
+        } catch (e) {
+          console.error("Failed to load POs from ERPNext:", e);
+        }
+      };
+      syncPOs();
+    }
+  }, [config.connected]);
 
   // Calculate current stock levels from ledger at initialization and when ledger changes
   useEffect(() => {
@@ -136,8 +203,50 @@ function App() {
   };
 
   // Buying actions
-  const handleCreatePurchaseOrder = (order: PurchaseOrder) => {
-    setPurchaseOrders(prev => [order, ...prev]);
+  const handleCreatePurchaseOrder = async (order: PurchaseOrder) => {
+    if (config.connected) {
+      try {
+        console.log("Pushing Purchase Order to ERPNext...");
+        const result = await createERPNextPurchaseOrder(config, order, warehouses[0]?.name);
+        if (result) {
+          const updatedOrder = { ...order, name: result.name || order.name };
+          setPurchaseOrders(prev => [updatedOrder, ...prev]);
+          alert(`Purchase Order ${updatedOrder.name} created and saved in ERPNext (MariaDB)!`);
+        }
+      } catch (e: any) {
+        console.error(e);
+        alert(`Failed to save PO to ERPNext: ${e.message || e}. Saving locally instead.`);
+        setPurchaseOrders(prev => [order, ...prev]);
+      }
+    } else {
+      setPurchaseOrders(prev => [order, ...prev]);
+    }
+  };
+
+  const handleAddSupplier = async (supplier: Supplier) => {
+    if (config.connected) {
+      try {
+        console.log("Creating Supplier in ERPNext...");
+        const result = await createERPNextSupplier(config, supplier);
+        if (result) {
+          const created = {
+            name: result.name || supplier.name,
+            supplier_group: result.supplier_group || supplier.supplier_group,
+            status: 'Active' as const,
+            contact_email: supplier.contact_email || '',
+            contact_phone: supplier.contact_phone || '',
+            address: supplier.address || '',
+          };
+          setSuppliers(prev => [...prev, created]);
+          alert(`Supplier "${created.name}" created successfully in ERPNext (MariaDB)!`);
+        }
+      } catch (e: any) {
+        console.error(e);
+        alert(`Failed to save Supplier to ERPNext: ${e.message || e}`);
+      }
+    } else {
+      setSuppliers(prev => [...prev, { ...supplier, status: 'Active' }]);
+    }
   };
 
   const handleSubmitPurchaseOrder = (name: string) => {
@@ -235,33 +344,11 @@ function App() {
   };
 
   const handleSyncItems = (syncedItems: Item[]) => {
-    setItems(prev => {
-      const merged = [...prev];
-      syncedItems.forEach(si => {
-        const idx = merged.findIndex(i => i.name === si.name);
-        if (idx > -1) {
-          merged[idx] = { ...merged[idx], ...si };
-        } else {
-          merged.push(si);
-        }
-      });
-      return merged;
-    });
+    setItems(syncedItems);
   };
 
   const handleSyncWarehouses = (syncedWarehouses: Warehouse[]) => {
-    setWarehouses(prev => {
-      const merged = [...prev];
-      syncedWarehouses.forEach(sw => {
-        const idx = merged.findIndex(w => w.name === sw.name);
-        if (idx > -1) {
-          merged[idx] = { ...merged[idx], ...sw };
-        } else {
-          merged.push(sw);
-        }
-      });
-      return merged;
-    });
+    setWarehouses(syncedWarehouses);
   };
 
   return (
@@ -381,6 +468,7 @@ function App() {
             onCreatePurchaseOrder={handleCreatePurchaseOrder}
             onSubmitPurchaseOrder={handleSubmitPurchaseOrder}
             onReceiveGoods={handleReceiveGoods}
+            onAddSupplier={handleAddSupplier}
           />
         )}
         {activeModule === 'selling' && (

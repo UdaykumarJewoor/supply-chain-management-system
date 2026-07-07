@@ -1,4 +1,4 @@
-import { ERPNextConfig, Item, Warehouse, Supplier, Customer } from '../types';
+import { ERPNextConfig, Item, Warehouse, Supplier, Customer, PurchaseOrder } from '../types';
 
 const CONFIG_KEY = 'scms_erpnext_config';
 const BACKEND_URL = 'http://localhost:5000';
@@ -101,7 +101,7 @@ export const fetchERPNextItems = async (config: ERPNextConfig): Promise<Item[]> 
     item_group: ri.item_group || 'Products',
     stock_uom: ri.stock_uom || 'Nos',
     valuation_rate: ri.valuation_rate || 0,
-    standard_selling_rate: ri.standard_selling_rate || 0,
+    standard_selling_rate: ri.standard_selling_rate || (ri.valuation_rate ? ri.valuation_rate * 1.5 : 15.0),
     current_stock: 0,
     reorder_level: ri.safety_stock || 0,
     reorder_qty: ri.min_order_qty || 0,
@@ -183,7 +183,7 @@ export const fetchERPNextCustomers = async (config: ERPNextConfig): Promise<Cust
 };
 
 // Post Purchase Order via proxy
-export const createERPNextPurchaseOrder = async (config: ERPNextConfig, order: any): Promise<any> => {
+export const createERPNextPurchaseOrder = async (config: ERPNextConfig, order: any, defaultWarehouse?: string): Promise<any> => {
   if (!config.connected) return null;
   
   await syncConfigToBackend(config);
@@ -192,11 +192,13 @@ export const createERPNextPurchaseOrder = async (config: ERPNextConfig, order: a
     supplier: order.supplier,
     transaction_date: order.transaction_date,
     schedule_date: order.schedule_date || order.transaction_date,
+    set_warehouse: defaultWarehouse,
     items: order.items.map((item: any) => ({
       item_code: item.item_code,
       qty: item.qty,
       rate: item.rate,
       uom: item.uom,
+      warehouse: defaultWarehouse,
     })),
   };
 
@@ -214,3 +216,58 @@ export const createERPNextPurchaseOrder = async (config: ERPNextConfig, order: a
   const data: any = await response.json();
   return data.data;
 };
+
+// Fetch Purchase Orders from ERPNext via proxy
+export const fetchERPNextPurchaseOrders = async (config: ERPNextConfig): Promise<PurchaseOrder[]> => {
+  if (!config.connected) return [];
+  
+  await syncConfigToBackend(config);
+
+  const response = await fetch(`${BACKEND_URL}/api/erpnext/purchase-orders`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch purchase orders from proxy: ${response.statusText}`);
+  }
+
+  const data: any = await response.json();
+  const rawOrders = data.data || [];
+
+  return rawOrders.map((po: any) => ({
+    name: po.name,
+    supplier: po.supplier,
+    transaction_date: po.transaction_date,
+    schedule_date: po.schedule_date,
+    status: po.status || 'Draft',
+    items: [], // Details can be loaded dynamically if needed
+    grand_total: po.grand_total || 0,
+    total_qty: po.total_qty || 0,
+    ...po,
+  }));
+};
+
+// Post a new Supplier to ERPNext via proxy
+export const createERPNextSupplier = async (config: ERPNextConfig, supplier: any): Promise<any> => {
+  if (!config.connected) return null;
+  
+  await syncConfigToBackend(config);
+
+  const payload = {
+    supplier_name: supplier.name,
+    supplier_group: supplier.supplier_group || 'All Supplier Groups',
+  };
+
+  const response = await fetch(`${BACKEND_URL}/api/erpnext/suppliers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`ERPNext Supplier Creation Failed: ${err}`);
+  }
+
+  const data: any = await response.json();
+  return data.data;
+};
+

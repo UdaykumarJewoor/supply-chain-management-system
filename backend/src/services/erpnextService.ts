@@ -102,4 +102,32 @@ export class ERPNextService {
     }
     return response.json();
   }
+
+  public static async getPurchaseOrders(): Promise<any> {
+    const fields = schemaRegistry.getFields('Purchase Order');
+    const target = `${config.url}/api/resource/Purchase Order?fields=${fields}&limit=50`;
+
+    const response = await fetch(target, { headers: config.getHeaders() });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`ERPNext returned ${response.status}: ${text}`);
+    }
+    return response.json();
+  }
+
+  public static async createSupplier(payload: any): Promise<any> {
+    const target = `${config.url}/api/resource/Supplier`;
+
+    const response = await fetch(target, {
+      method: 'POST',
+      headers: config.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`ERPNext returned ${response.status}: ${text}`);
+    }
+    return response.json();
+  }
 }
