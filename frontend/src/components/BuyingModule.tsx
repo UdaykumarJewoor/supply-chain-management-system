@@ -18,6 +18,7 @@ interface BuyingModuleProps {
   onCreatePurchaseOrder: (order: PurchaseOrder) => void;
   onSubmitPurchaseOrder: (name: string) => void;
   onReceiveGoods: (name: string, warehouseName: string) => void;
+  onAddSupplier: (supplier: Supplier) => void;
 }
 
 export const BuyingModule: React.FC<BuyingModuleProps> = ({
@@ -27,11 +28,45 @@ export const BuyingModule: React.FC<BuyingModuleProps> = ({
   onCreatePurchaseOrder,
   onSubmitPurchaseOrder,
   onReceiveGoods,
+  onAddSupplier,
 }) => {
   const [activeTab, setActiveTab] = useState<'orders' | 'suppliers'>('orders');
   const [isCreatePoOpen, setIsCreatePoOpen] = useState(false);
+  const [isCreateSupplierOpen, setIsCreateSupplierOpen] = useState(false);
   const [selectedPo, setSelectedPo] = useState<PurchaseOrder | null>(null);
   const [targetWarehouse, setTargetWarehouse] = useState('Raw Materials - SCMS');
+
+  // Form states for new Supplier
+  const [newSupplier, setNewSupplier] = useState({
+    name: '',
+    supplier_group: 'Local',
+    contact_email: '',
+    contact_phone: '',
+    address: '',
+  });
+
+  const handleSubmitSupplier = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSupplier.name) return;
+
+    onAddSupplier({
+      name: newSupplier.name,
+      supplier_group: newSupplier.supplier_group,
+      status: 'Active',
+      contact_email: newSupplier.contact_email,
+      contact_phone: newSupplier.contact_phone,
+      address: newSupplier.address,
+    });
+
+    setNewSupplier({
+      name: '',
+      supplier_group: 'Local',
+      contact_email: '',
+      contact_phone: '',
+      address: '',
+    });
+    setIsCreateSupplierOpen(false);
+  };
 
   // Form states for new PO
   const [newPo, setNewPo] = useState({
@@ -121,7 +156,7 @@ export const BuyingModule: React.FC<BuyingModuleProps> = ({
           <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-display)', marginBottom: '0.15rem' }}>Procurement & Buying</h1>
           <p style={{ color: 'hsl(var(--text-muted))' }}>Manage material sourcing, register vendors, and control purchase cycles from request to receipt.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button className="btn btn-primary" onClick={() => setIsCreatePoOpen(true)}>
             <Plus size={16} /> Create PO
           </button>
@@ -485,6 +520,79 @@ export const BuyingModule: React.FC<BuyingModuleProps> = ({
             <div className="flex justify-between items-center" style={{ gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid hsl(var(--border))' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setIsCreatePoOpen(false)}>Cancel</button>
               <button type="submit" className="btn btn-primary" disabled={newPo.items.length === 0}>Create Draft PO</button>
+            </div>
+          </form>
+        </div>
+      )}
+      {/* CREATE SUPPLIER MODAL */}
+      {isCreateSupplierOpen && (
+        <div className="modal-overlay">
+          <form className="modal-content" style={{ maxWidth: '480px' }} onSubmit={handleSubmitSupplier}>
+            <div className="modal-header">
+              <h2 className="modal-title">New Supplier</h2>
+              <button type="button" className="modal-close" onClick={() => setIsCreateSupplierOpen(false)}>×</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="form-group">
+                <label>Supplier Name *</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Acme Parts"
+                  value={newSupplier.name}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Supplier Group *</label>
+                <select 
+                  value={newSupplier.supplier_group}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, supplier_group: e.target.value })}
+                >
+                  <option value="Local">Local</option>
+                  <option value="Electrical">Electrical</option>
+                  <option value="Distributor">Distributor</option>
+                  <option value="Raw Material">Raw Material</option>
+                  <option value="Services">Services</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Contact Email</label>
+                <input 
+                  type="email" 
+                  placeholder="e.g. vendor@acme.com"
+                  value={newSupplier.contact_email}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, contact_email: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Contact Phone</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. +1 555-0199"
+                  value={newSupplier.contact_phone}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, contact_phone: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Address</label>
+                <textarea 
+                  rows={2}
+                  placeholder="e.g. 100 Main St, Suite 4"
+                  value={newSupplier.address}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsCreateSupplierOpen(false)}>Cancel</button>
+              <button type="submit" className="btn btn-primary">Create Supplier</button>
             </div>
           </form>
         </div>

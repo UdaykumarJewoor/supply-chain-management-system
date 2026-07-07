@@ -105,6 +105,17 @@ router.get('/customers', async (req, res) => {
   }
 });
 
+// Proxy GET Purchase Orders
+router.get('/purchase-orders', async (req, res) => {
+  try {
+    const data = await ERPNextService.getPurchaseOrders();
+    res.json(data);
+  } catch (error: any) {
+    console.error('[Proxy Error] getPurchaseOrders:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Proxy POST Purchase Order
 router.post('/purchase-orders', async (req, res) => {
   try {
@@ -112,6 +123,39 @@ router.post('/purchase-orders', async (req, res) => {
     res.json(data);
   } catch (error: any) {
     console.error('[Proxy Error] createPurchaseOrder:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Proxy POST Supplier
+router.post('/suppliers', async (req, res) => {
+  try {
+    const data = await ERPNextService.createSupplier(req.body);
+    res.json(data);
+  } catch (error: any) {
+    console.error('[Proxy Error] createSupplier:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Proxy POST Item
+router.post('/items', async (req, res) => {
+  try {
+    const data = await ERPNextService.createItem(req.body);
+    res.json(data);
+  } catch (error: any) {
+    console.error('[Proxy Error] createItem:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Proxy GET Item Groups
+router.get('/item-groups', async (req, res) => {
+  try {
+    const data = await ERPNextService.getItemGroups();
+    res.json(data);
+  } catch (error: any) {
+    console.error('[Proxy Error] getItemGroups:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

@@ -1,9 +1,9 @@
 class SchemaRegistry {
   private registries: { [docType: string]: string[] } = {
-    Item: ['name', 'item_name', 'stock_uom', 'valuation_rate', 'standard_selling_rate', 'description'],
+    Item: ['name', 'item_name', 'stock_uom', 'valuation_rate', 'description'],
     Warehouse: ['name', 'warehouse_name', 'parent_warehouse', 'is_group'],
-    Supplier: ['name', 'supplier_group', 'status', 'email_id', 'phone'],
-    Customer: ['name', 'customer_group', 'status', 'email_id', 'mobile_no'],
+    Supplier: ['name', 'supplier_name', 'supplier_group', 'disabled'],
+    Customer: ['name', 'customer_name', 'customer_group', 'disabled'],
     'Purchase Order': ['name', 'supplier', 'transaction_date', 'schedule_date', 'status', 'grand_total', 'total_qty'],
   };
 
