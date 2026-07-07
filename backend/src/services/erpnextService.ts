@@ -146,4 +146,15 @@ export class ERPNextService {
     }
     return response.json();
   }
+
+  public static async getItemGroups(): Promise<any> {
+    const target = `${config.url}/api/resource/Item Group?limit=100`;
+
+    const response = await fetch(target, { headers: config.getHeaders() });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`ERPNext returned ${response.status}: ${text}`);
+    }
+    return response.json();
+  }
 }

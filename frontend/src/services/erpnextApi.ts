@@ -301,3 +301,20 @@ export const createERPNextItem = async (config: ERPNextConfig, item: any): Promi
   return data.data;
 };
 
+// Fetch list of active Item Groups from ERPNext via proxy
+export const fetchERPNextItemGroups = async (config: ERPNextConfig): Promise<string[]> => {
+  if (!config.connected) return ['Raw Materials', 'Finished Goods', 'Hardware & Fasteners', 'Electronics', 'Sub-Assemblies'];
+
+  await syncConfigToBackend(config);
+
+  const response = await fetch(`${BACKEND_URL}/api/erpnext/item-groups`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch item groups from proxy: ${response.statusText}`);
+  }
+
+  const data: any = await response.json();
+  const rawGroups = data.data || [];
+  return rawGroups.map((ig: any) => ig.name);
+};
+

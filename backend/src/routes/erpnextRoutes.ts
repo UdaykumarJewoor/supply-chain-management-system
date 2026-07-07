@@ -149,4 +149,15 @@ router.post('/items', async (req, res) => {
   }
 });
 
+// Proxy GET Item Groups
+router.get('/item-groups', async (req, res) => {
+  try {
+    const data = await ERPNextService.getItemGroups();
+    res.json(data);
+  } catch (error: any) {
+    console.error('[Proxy Error] getItemGroups:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;

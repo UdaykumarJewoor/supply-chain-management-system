@@ -18,6 +18,7 @@ interface InventoryModuleProps {
   stockLedger: StockLedgerEntry[];
   onAddItem: (item: Item) => void;
   onStockEntry: (entry: StockEntry) => void;
+  itemGroups: string[];
 }
 
 export const InventoryModule: React.FC<InventoryModuleProps> = ({
@@ -26,6 +27,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
   stockLedger,
   onAddItem,
   onStockEntry,
+  itemGroups,
 }) => {
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<'items' | 'warehouses' | 'ledger' | 'entries'>('items');
@@ -43,7 +45,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
     name: '',
     item_name: '',
     sku: '',
-    item_group: 'Raw Materials',
+    item_group: itemGroups[0] || 'Raw Materials',
     stock_uom: 'Nos',
     valuation_rate: 0,
     standard_selling_rate: 0,
@@ -76,7 +78,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
       name: '',
       item_name: '',
       sku: '',
-      item_group: 'Raw Materials',
+      item_group: itemGroups[0] || 'Raw Materials',
       stock_uom: 'Nos',
       valuation_rate: 0,
       standard_selling_rate: 0,
@@ -125,7 +127,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
     return matchesSearch && matchesGroup;
   });
 
-  const itemGroups = ['All', ...Array.from(new Set(items.map(i => i.item_group)))];
+  const filterGroups = ['All', ...Array.from(new Set(items.map(i => i.item_group)))];
 
   return (
     <div className="main-content">
@@ -190,7 +192,7 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontSize: '0.85rem', color: 'hsl(var(--text-muted))' }}>Group:</span>
               <select value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)} style={{ padding: '0.6rem 2rem 0.6rem 0.85rem' }}>
-                {itemGroups.map(grp => (
+                {filterGroups.map(grp => (
                   <option key={grp} value={grp}>{grp}</option>
                 ))}
               </select>
@@ -394,11 +396,9 @@ export const InventoryModule: React.FC<InventoryModuleProps> = ({
                     value={newItem.item_group}
                     onChange={(e) => setNewItem({ ...newItem, item_group: e.target.value })}
                   >
-                    <option value="Raw Materials">Raw Materials</option>
-                    <option value="Finished Goods">Finished Goods</option>
-                    <option value="Hardware & Fasteners">Hardware & Fasteners</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Sub-Assemblies">Sub-Assemblies</option>
+                    {itemGroups.map(group => (
+                      <option key={group} value={group}>{group}</option>
+                    ))}
                   </select>
                 </div>
               </div>

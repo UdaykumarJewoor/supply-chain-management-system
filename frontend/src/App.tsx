@@ -10,7 +10,7 @@ import {
   initialSalesOrders, 
   initialStockLedger 
 } from './services/mockData';
-import { getStoredConfig, createERPNextPurchaseOrder, fetchERPNextPurchaseOrders, createERPNextSupplier, createERPNextItem } from './services/erpnextApi';
+import { getStoredConfig, createERPNextPurchaseOrder, fetchERPNextPurchaseOrders, createERPNextSupplier, createERPNextItem, fetchERPNextItemGroups } from './services/erpnextApi';
 import { Dashboard } from './components/Dashboard';
 import { InventoryModule } from './components/InventoryModule';
 import { BuyingModule } from './components/BuyingModule';
@@ -65,6 +65,10 @@ function App() {
     const local = localStorage.getItem('scms_stock_ledger');
     return local ? JSON.parse(local) : initialStockLedger;
   });
+  const [itemGroups, setItemGroups] = useState<string[]>(() => {
+    const local = localStorage.getItem('scms_item_groups');
+    return local ? JSON.parse(local) : ['Raw Materials', 'Finished Goods', 'Hardware & Fasteners', 'Electronics', 'Sub-Assemblies'];
+  });
   const [config, setConfig] = useState<ERPNextConfig>(getStoredConfig());
 
   // Persist mock state changes to localStorage
@@ -96,6 +100,10 @@ function App() {
     localStorage.setItem('scms_stock_ledger', JSON.stringify(stockLedger));
   }, [stockLedger]);
 
+  useEffect(() => {
+    localStorage.setItem('scms_item_groups', JSON.stringify(itemGroups));
+  }, [itemGroups]);
+
   // Load Purchase Orders from ERPNext when connected
   useEffect(() => {
     if (config.connected) {
@@ -110,6 +118,23 @@ function App() {
         }
       };
       syncPOs();
+    }
+  }, [config.connected]);
+
+  // Load Item Groups from ERPNext when connected
+  useEffect(() => {
+    if (config.connected) {
+      const syncItemGroups = async () => {
+        try {
+          const groups = await fetchERPNextItemGroups(config);
+          if (groups && groups.length > 0) {
+            setItemGroups(groups);
+          }
+        } catch (e) {
+          console.error("Failed to load item groups from ERPNext:", e);
+        }
+      };
+      syncItemGroups();
     }
   }, [config.connected]);
 
@@ -477,6 +502,7 @@ function App() {
             stockLedger={stockLedger}
             onAddItem={handleAddItem}
             onStockEntry={handleStockEntry}
+            itemGroups={itemGroups}
           />
         )}
         {activeModule === 'buying' && (
