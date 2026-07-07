@@ -10,7 +10,7 @@ import {
   initialSalesOrders, 
   initialStockLedger 
 } from './services/mockData';
-import { getStoredConfig, createERPNextPurchaseOrder, fetchERPNextPurchaseOrders, createERPNextSupplier } from './services/erpnextApi';
+import { getStoredConfig, createERPNextPurchaseOrder, fetchERPNextPurchaseOrders, createERPNextSupplier, createERPNextItem } from './services/erpnextApi';
 import { Dashboard } from './components/Dashboard';
 import { InventoryModule } from './components/InventoryModule';
 import { BuyingModule } from './components/BuyingModule';
@@ -156,8 +156,27 @@ function App() {
   // TRANSACTION ACTIONS
 
   // Add a new item Master record
-  const handleAddItem = (newItem: Item) => {
-    setItems(prev => [...prev, newItem]);
+  const handleAddItem = async (newItem: Item) => {
+    if (config.connected) {
+      try {
+        console.log("Creating Item in ERPNext...");
+        const result = await createERPNextItem(config, newItem);
+        if (result) {
+          const created = {
+            ...newItem,
+            name: result.name || newItem.name,
+            sku: result.name || newItem.sku,
+          };
+          setItems(prev => [...prev, created]);
+          alert(`Item "${created.name}" created successfully in ERPNext (MariaDB)!`);
+        }
+      } catch (e: any) {
+        console.error(e);
+        alert(`Failed to save Item to ERPNext: ${e.message || e}`);
+      }
+    } else {
+      setItems(prev => [...prev, newItem]);
+    }
   };
 
   // Process manual/voucher Stock Entry

@@ -138,4 +138,15 @@ router.post('/suppliers', async (req, res) => {
   }
 });
 
+// Proxy POST Item
+router.post('/items', async (req, res) => {
+  try {
+    const data = await ERPNextService.createItem(req.body);
+    res.json(data);
+  } catch (error: any) {
+    console.error('[Proxy Error] createItem:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;

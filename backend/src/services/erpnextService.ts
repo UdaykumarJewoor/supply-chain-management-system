@@ -130,4 +130,20 @@ export class ERPNextService {
     }
     return response.json();
   }
+
+  public static async createItem(payload: any): Promise<any> {
+    const target = `${config.url}/api/resource/Item`;
+
+    const response = await fetch(target, {
+      method: 'POST',
+      headers: config.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`ERPNext returned ${response.status}: ${text}`);
+    }
+    return response.json();
+  }
 }

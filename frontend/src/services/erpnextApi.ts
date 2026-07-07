@@ -271,3 +271,33 @@ export const createERPNextSupplier = async (config: ERPNextConfig, supplier: any
   return data.data;
 };
 
+// Post a new Item to ERPNext via proxy
+export const createERPNextItem = async (config: ERPNextConfig, item: any): Promise<any> => {
+  if (!config.connected) return null;
+  
+  await syncConfigToBackend(config);
+
+  const payload = {
+    item_code: item.name,
+    item_name: item.item_name,
+    item_group: item.item_group || 'All Item Groups',
+    stock_uom: item.stock_uom || 'Nos',
+    valuation_rate: item.valuation_rate || 0,
+    description: item.description || '',
+  };
+
+  const response = await fetch(`${BACKEND_URL}/api/erpnext/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`ERPNext Item Creation Failed: ${err}`);
+  }
+
+  const data: any = await response.json();
+  return data.data;
+};
+
